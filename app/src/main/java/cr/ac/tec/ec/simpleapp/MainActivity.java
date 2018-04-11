@@ -19,6 +19,16 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import kaaes.spotify.webapi.android.*;
+import kaaes.spotify.webapi.android.models.*;
+import kaaes.spotify.webapi.android.models.Playlist;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
+
+//GET https://api.spotify.com/v1/users/{user_id}/playlists
+
 public class MainActivity extends Activity implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback
 {
@@ -26,10 +36,15 @@ public class MainActivity extends Activity implements
     private static final String REDIRECT_URI = "http://spotify.com";
     private Player mPlayer;
     private static final int REQUEST_CODE = 1337;
+    SpotifyApi api = new SpotifyApi();
+
+    SpotifyService spotify = api.getService();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        api.setAccessToken("11699fbc262a49388628a40c99caf88e");
         setContentView(R.layout.activity_main);
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
@@ -93,6 +108,7 @@ public class MainActivity extends Activity implements
     @Override
     public void onLoggedIn() {
         Log.d("MainActivity", "User logged in");
+
 
         mPlayer.playUri(null, "spotify:track:2TpxZ7JUBn3uw46aR7qd6V", 0, 0);
     }
