@@ -48,9 +48,9 @@ public class MainActivity extends Activity implements
     //
 
     @SuppressWarnings("SpellCheckingInspection")
-    private static final String CLIENT_ID = "089d841ccc194c10a77afad9e1c11d54";
+    private static final String CLIENT_ID = "a03389b7f2bc41cfa78d8eb2fc47acc2";
     @SuppressWarnings("SpellCheckingInspection")
-    private static final String REDIRECT_URI = "testschema://callback";
+    private static final String REDIRECT_URI = "http://spotify.com";
 
     @SuppressWarnings("SpellCheckingInspection")
     private static final String TEST_SONG_URI = "spotify:track:6KywfgRqvgvfJc3JRwaZdZ";
@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements
     @SuppressWarnings("SpellCheckingInspection")
     private static final String TEST_SONG_48kHz_URI = "spotify:track:3wxTNS3aqb9RbBLZgJdZgH";
     @SuppressWarnings("SpellCheckingInspection")
-    private static final String TEST_PLAYLIST_URI = "spotify:user:spotify:playlist:2yLXxKhhziG2xzy7eyD4TD";
+    private static final String TEST_PLAYLIST_URI = "spotify:playlist:2yLXxKhhziG2xzy7eyD4TD";
     @SuppressWarnings("SpellCheckingInspection")
     private static final String TEST_ALBUM_URI = "spotify:album:2lYmxilk8cXJlxxXmns1IU";
     @SuppressWarnings("SpellCheckingInspection")
@@ -367,6 +367,10 @@ default:
 
         logStatus("Starting playback for " + uri);
         mPlayer.playUri(mOperationCallback, uri, 0, 0);
+        TextView info = findViewById(R.id.metadata);
+        if (mPlayer.getMetadata() != null) {
+                info.setText(mPlayer.getMetadata().toString());
+        }
         }
 
 public void onPauseButtonClicked(View view) {
