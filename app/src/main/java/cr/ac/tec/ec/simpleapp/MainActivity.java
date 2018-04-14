@@ -9,9 +9,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -38,6 +41,9 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.io.InputStream;
+import java.net.URL;
+
 public class MainActivity extends Activity implements
         Player.NotificationCallback, ConnectionStateCallback {
     //   ____                _              _
@@ -59,7 +65,7 @@ public class MainActivity extends Activity implements
     @SuppressWarnings("SpellCheckingInspection")
     private static final String TEST_SONG_48kHz_URI = "spotify:track:3wxTNS3aqb9RbBLZgJdZgH";
     @SuppressWarnings("SpellCheckingInspection")
-    private static final String TEST_PLAYLIST_URI = "spotify:playlist:2yLXxKhhziG2xzy7eyD4TD";
+    private static final String TEST_PLAYLIST_URI = "spotify:user:12139735377:playlist:28HpUG03DARS6yfOB7fyO3";
     @SuppressWarnings("SpellCheckingInspection")
     private static final String TEST_ALBUM_URI = "spotify:album:2lYmxilk8cXJlxxXmns1IU";
     @SuppressWarnings("SpellCheckingInspection")
@@ -76,16 +82,10 @@ private static final int REQUEST_CODE = 1337;
  */
 private static final int[] REQUIRES_INITIALIZED_STATE = {
         R.id.play_track_button,
-        R.id.play_mono_track_button,
-        R.id.play_48khz_track_button,
+
         R.id.play_album_button,
         R.id.play_playlist_button,
         R.id.pause_button,
-        R.id.seek_button,
-        R.id.low_bitrate_button,
-        R.id.normal_bitrate_button,
-        R.id.high_bitrate_button,
-        R.id.seek_edittext,
         };
 
 /**
@@ -147,16 +147,17 @@ private ScrollView mStatusTextScrollView;
 private Metadata mMetadata;
 
 private final Player.OperationCallback mOperationCallback = new Player.OperationCallback() {
-@Override
-public void onSuccess() {
-        logStatus("OK!");
-        }
+    @Override
+    public void onSuccess() {
+            //logStatus("OK!");
+            }
 
-@Override
-public void onError(Error error) {
-        logStatus("ERROR:" + error);
-        }
-        };
+    @Override
+    public void onError(Error error) {
+            //logStatus("ERROR:" + error);
+            }
+};
+
 
 //  ___       _ _   _       _ _          _   _
 // |_ _|_ __ (_) |_(_) __ _| (_)______ _| |_(_) ___  _ __
@@ -171,13 +172,12 @@ protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_main);
 
         // Get a reference to any UI widgets that we'll need to use later
-        mStatusText = (TextView) findViewById(R.id.status_text);
+        //mStatusText = (TextView) findViewById(R.id.status_text);
         mMetadataText = (TextView) findViewById(R.id.metadata);
-        mSeekEditText = (EditText) findViewById(R.id.seek_edittext);
-        mStatusTextScrollView = (ScrollView) findViewById(R.id.status_text_container);
+        //mStatusTextScrollView = (ScrollView) findViewById(R.id.status_text_container);
 
         updateView();
-        logStatus("Ready");
+        //logStatus("Ready");
         }
 
 @Override
@@ -187,24 +187,24 @@ protected void onResume() {
         // Set up the broadcast receiver for network events. Note that we also unregister
         // this receiver again in onPause().
         mNetworkStateReceiver = new BroadcastReceiver() {
-@Override
-public void onReceive(Context context, Intent intent) {
-        if (mPlayer != null) {
-        Connectivity connectivity = getNetworkConnectivity(getBaseContext());
-        logStatus("Network state changed: " + connectivity.toString());
-        mPlayer.setConnectivityStatus(mOperationCallback, connectivity);
-        }
-        }
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                    if (mPlayer != null) {
+                        Connectivity connectivity = getNetworkConnectivity(getBaseContext());
+                        //logStatus("Network state changed: " + connectivity.toString());
+                        mPlayer.setConnectivityStatus(mOperationCallback, connectivity);
+                    }
+            }
         };
 
         IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(mNetworkStateReceiver, filter);
 
         if (mPlayer != null) {
-        mPlayer.addNotificationCallback(MainActivity.this);
-        mPlayer.addConnectionStateCallback(MainActivity.this);
+            mPlayer.addNotificationCallback(MainActivity.this);
+            mPlayer.addConnectionStateCallback(MainActivity.this);
         }
-        }
+}
 
 /**
  * Registering for connectivity changes in Android does not actually deliver them to
@@ -218,11 +218,11 @@ private Connectivity getNetworkConnectivity(Context context) {
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
         if (activeNetwork != null && activeNetwork.isConnected()) {
-        return Connectivity.fromNetworkType(activeNetwork.getType());
+            return Connectivity.fromNetworkType(activeNetwork.getType());
         } else {
-        return Connectivity.OFFLINE;
+            return Connectivity.OFFLINE;
         }
-        }
+}
 
 //     _         _   _                _   _           _   _
 //    / \  _   _| |_| |__   ___ _ __ | |_(_) ___ __ _| |_(_) ___  _ __
@@ -245,28 +245,28 @@ protected void onActivityResult(int requestCode, int resultCode, Intent intent) 
 
         // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
-        AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-        switch (response.getType()) {
-        // Response was successful and contains auth token
-        case TOKEN:
-        onAuthenticationComplete(response);
-        break;
+            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
+            switch (response.getType()) {
+            // Response was successful and contains auth token
+            case TOKEN:
+            onAuthenticationComplete(response);
+            break;
 
-        // Auth flow returned an error
-        case ERROR:
-        logStatus("Auth error: " + response.getError());
-        break;
+            // Auth flow returned an error
+            case ERROR:
+            //logStatus("Auth error: " + response.getError());
+            break;
 
-// Most likely auth flow was cancelled
-default:
-        logStatus("Auth result: " + response.getType());
+            // Most likely auth flow was cancelled
+            default:
+                //logStatus("Auth result: " + response.getType());
+            }
         }
-        }
-        }
+}
 
 private void onAuthenticationComplete(AuthenticationResponse authResponse) {
         // Once we have obtained an authorization token, we can proceed with creating a Player.
-        logStatus("Got authentication token");
+        //logStatus("Got authentication token");
         if (mPlayer == null) {
         Config playerConfig = new Config(getApplicationContext(), authResponse.getAccessToken(), CLIENT_ID);
         // Since the Player is a static singleton owned by the Spotify class, we pass "this" as
@@ -275,25 +275,26 @@ private void onAuthenticationComplete(AuthenticationResponse authResponse) {
         // one passed in here. If you pass different instances to Spotify.getPlayer() and
         // Spotify.destroyPlayer(), that will definitely result in resource leaks.
         mPlayer = Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
-@Override
-public void onInitialized(SpotifyPlayer player) {
-        logStatus("-- Player initialized --");
-        mPlayer.setConnectivityStatus(mOperationCallback, getNetworkConnectivity(MainActivity.this));
-        mPlayer.addNotificationCallback(MainActivity.this);
-        mPlayer.addConnectionStateCallback(MainActivity.this);
-        // Trigger UI refresh
-        updateView();
-        }
+                @Override
+                public void onInitialized(SpotifyPlayer player) {
+                        //logStatus("-- Player initialized --");
+                        mPlayer.setConnectivityStatus(mOperationCallback, getNetworkConnectivity(MainActivity.this));
+                        mPlayer.addNotificationCallback(MainActivity.this);
+                        mPlayer.addConnectionStateCallback(MainActivity.this);
+                        // Trigger UI refresh
+                        updateView();
+                        }
 
-@Override
-public void onError(Throwable error) {
-        logStatus("Error in initialization: " + error.getMessage());
+                @Override
+                public void onError(Throwable error) {
+                    //logStatus("Error in initialization: " + error.getMessage());
+                }
+
+            });
+        } else{
+            mPlayer.login(authResponse.getAccessToken());
         }
-        });
-        } else {
-        mPlayer.login(authResponse.getAccessToken());
-        }
-        }
+}
 
 //  _   _ ___   _____                 _
 // | | | |_ _| | ____|_   _____ _ __ | |_ ___
@@ -311,23 +312,129 @@ private void updateView() {
 
         // Set enabled for all widgets which depend on initialized state
         for (int id : REQUIRES_INITIALIZED_STATE) {
-        findViewById(id).setEnabled(loggedIn);
+            findViewById(id).setEnabled(loggedIn);
         }
 
         // Same goes for the playing state
         boolean playing = loggedIn && mCurrentPlaybackState != null && mCurrentPlaybackState.isPlaying;
         for (int id : REQUIRES_PLAYING_STATE) {
-        findViewById(id).setEnabled(playing);
+            findViewById(id).setEnabled(playing);
         }
+
+
+            //while (mPlayer.getMetadata().currentTrack == null){
+
+            //}
+            /* String player_info = "";
+            player_info = mMetadata.currentTrack.name + "\n"
+                    + mMetadata.currentTrack.artistName;
+            TextView info = findViewById(R.id.metadata);
+            info.setText(player_info);*/
+
 
         if (mMetadata != null) {
-        findViewById(R.id.skip_next_button).setEnabled(mMetadata.nextTrack != null);
-        findViewById(R.id.skip_prev_button).setEnabled(mMetadata.prevTrack != null);
-        findViewById(R.id.pause_button).setEnabled(mMetadata.currentTrack != null);
+            findViewById(R.id.skip_next_button).setEnabled(mMetadata.nextTrack != null);
+            findViewById(R.id.skip_prev_button).setEnabled(mMetadata.prevTrack != null);
+            findViewById(R.id.pause_button).setEnabled(mMetadata.currentTrack != null);
+            findViewById(R.id.main_imgCover).setEnabled(mMetadata.currentTrack != null);
+
+
+
         }
 
-final ImageView coverArtView = (ImageView) findViewById(R.id.cover_art);
+        final ImageView coverArtView = (ImageView) findViewById(R.id.cover_art);
+
+
+
+        /*TextView info = findViewById(R.id.metadata);
+        if (mPlayer.getMetadata() != null) {
+            info.setText(player_info);
+        }*/
+}
+
+
+public static Drawable LoadImageFromWebOperations(String url) {
+        try {
+            InputStream is = (InputStream) new URL(url).getContent();
+            Drawable d = Drawable.createFromStream(is, "src name");
+            return d;
+        } catch (Exception e) {
+            return null;
         }
+}
+
+private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+                System.out.println("FAIL");
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
+    }
+
+private void updatePlayerInfo(){
+
+    while (mPlayer.getMetadata().currentTrack == null){
+        mPlayer.getMetadata();
+    }
+    mPlayer.refreshCache();
+
+    Metadata copy_mMetadata = mMetadata;
+
+   /*while (copy_mMetadata.nextTrack != null){
+        System.out.println(copy_mMetadata.currentTrack.name);
+        mPlayer.playUri(mOperationCallback, copy_mMetadata.nextTrack.uri, 0, 0);
+        copy_mMetadata = mPlayer.getMetadata();
+        while (mPlayer.getMetadata().currentTrack == null){
+            mPlayer.getMetadata();
+        }
+
+    }*/
+
+    if (mMetadata != null) {
+        String player_info = "";
+        player_info = mPlayer.getMetadata().currentTrack.name + "\n"
+                + mPlayer.getMetadata().currentTrack.artistName;
+
+
+        /*int sdk = android.os.Build.VERSION.SDK_INT;
+        if(sdk < android.os.Build.VERSION_CODES.JELLY_BEAN) {
+            findViewById(R.id.main_imgCover).setBackgroundDrawable
+                    (LoadImageFromWebOperations(mPlayer.getMetadata().currentTrack.albumCoverWebUrl));
+        } else {
+            findViewById(R.id.main_imgCover).setBackground
+                    (LoadImageFromWebOperations(mPlayer.getMetadata().currentTrack.albumCoverWebUrl));
+        }*/
+
+        new DownloadImageTask((ImageView) findViewById(R.id.main_imgCover))
+                .execute(mPlayer.getMetadata().currentTrack.albumCoverWebUrl);
+
+
+
+        TextView info = findViewById(R.id.metadata);
+        if (mPlayer.getMetadata() != null) {
+            info.setText(player_info);
+        }
+    }
+}
+
 
 private boolean isLoggedIn() {
         return mPlayer != null && mPlayer.isLoggedIn();
@@ -335,7 +442,7 @@ private boolean isLoggedIn() {
 
 public void onLoginButtonClicked(View view) {
         if (!isLoggedIn()) {
-        logStatus("Logging in");
+        //logStatus("Logging in");
         openLoginWindow();
         } else {
         mPlayer.logout();
@@ -349,29 +456,22 @@ public void onPlayButtonClicked(View view) {
         case R.id.play_track_button:
         uri = TEST_SONG_URI;
         break;
-        case R.id.play_mono_track_button:
-        uri = TEST_SONG_MONO_URI;
-        break;
-        case R.id.play_48khz_track_button:
-        uri = TEST_SONG_48kHz_URI;
-        break;
         case R.id.play_playlist_button:
         uri = TEST_PLAYLIST_URI;
         break;
         case R.id.play_album_button:
         uri = TEST_ALBUM_URI;
         break;
-default:
-        throw new IllegalArgumentException("View ID does not have an associated URI to play");
+
+        default:
+            throw new IllegalArgumentException("View ID does not have an associated URI to play");
         }
 
-        logStatus("Starting playback for " + uri);
+        //logStatus("Starting playback for " + uri);
         mPlayer.playUri(mOperationCallback, uri, 0, 0);
-        TextView info = findViewById(R.id.metadata);
-        if (mPlayer.getMetadata() != null) {
-                info.setText(mPlayer.getMetadata().toString());
-        }
-        }
+
+
+}
 
 public void onPauseButtonClicked(View view) {
         if (mCurrentPlaybackState != null && mCurrentPlaybackState.isPlaying) {
@@ -429,28 +529,28 @@ public void onHighBitrateButtonPressed(View view) {
 
 @Override
 public void onLoggedIn() {
-        logStatus("Login complete");
+        //logStatus("Login complete");
         updateView();
         }
 
 @Override
 public void onLoggedOut() {
-        logStatus("Logout complete");
+        //logStatus("Logout complete");
         updateView();
         }
 
 public void onLoginFailed(Error error) {
-        logStatus("Login error "+ error);
+        //logStatus("Login error "+ error);
         }
 
 @Override
 public void onTemporaryError() {
-        logStatus("Temporary error occurred");
+        //logStatus("Temporary error occurred");
         }
 
 @Override
 public void onConnectionMessage(final String message) {
-        logStatus("Incoming connection message: " + message);
+        //logStatus("Incoming connection message: " + message);
         }
 
 //  _____                       _   _                 _ _ _
@@ -466,7 +566,7 @@ public void onConnectionMessage(final String message) {
  *
  * @param status Status message
  */
-private void logStatus(String status) {
+/*private void logStatus(String status) {
         Log.i(TAG, status);
         if (!TextUtils.isEmpty(mStatusText.getText())) {
         mStatusText.append("\n");
@@ -479,7 +579,7 @@ public void run() {
         mStatusTextScrollView.fullScroll(View.FOCUS_DOWN);
         }
         });
-        }
+        }*/
 
 //  ____            _                   _   _
 // |  _ \  ___  ___| |_ _ __ _   _  ___| |_(_) ___  _ __
@@ -520,16 +620,18 @@ public void onPlaybackEvent(PlayerEvent event) {
         // Remember kids, always use the English locale when changing case for non-UI strings!
         // Otherwise you'll end up with mysterious errors when running in the Turkish locale.
         // See: http://java.sys-con.com/node/46241
-        logStatus("Event: " + event);
+        //logStatus("Event: " + event);
         mCurrentPlaybackState = mPlayer.getPlaybackState();
         mMetadata = mPlayer.getMetadata();
         Log.i(TAG, "Player state: " + mCurrentPlaybackState);
         Log.i(TAG, "Metadata: " + mMetadata);
         updateView();
+        updatePlayerInfo();
         }
 
 @Override
 public void onPlaybackError(Error error) {
-        logStatus("Err: " + error);
+        //logStatus("Err: " + error);
         }
-        }
+
+}

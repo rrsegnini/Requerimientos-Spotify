@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center"
@@ -10,8 +11,14 @@
         android:id="@+id/metadata"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="string/no_metadata"/>
+        android:gravity="center" />
+
+    <ImageView
+        android:id="@+id/main_imgCover"
+        android:layout_width="match_parent"
+        android:layout_height="154dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_launcher_background" />
 
     <Button
         android:id="@+id/login_button"
@@ -109,22 +116,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/seek_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:onClick="onSeekButtonClicked"
-            android:text="Seek"/>
-
-        <EditText
-            android:id="@+id/seek_edittext"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:text="0"/>
-
     </LinearLayout>
 
     <LinearLayout
@@ -132,46 +123,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/low_bitrate_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:width="0dp"
-            android:onClick="onLowBitrateButtonPressed"
-            android:text="string/low_bitrate_button_label"/>
-
-        <Button
-            android:id="@+id/normal_bitrate_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:width="0dp"
-            android:onClick="onNormalBitrateButtonPressed"
-            android:text="string/normal_bitrate_button_label"/>
-
-        <Button
-            android:id="@+id/high_bitrate_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:width="0dp"
-            android:onClick="onHighBitrateButtonPressed"
-            android:text="string/high_bitrate_button_label"/>
-
-        <Button
-            android:id="@+id/play_mono_track_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onPlayButtonClicked"
-            android:text="string/play_mono_track_button_label"/>
-
-        <Button
-            android:id="@+id/play_48khz_track_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onPlayButtonClicked"
-            android:text="string/play_48khz_track_button_label"/>
     </LinearLayout>
 
 
